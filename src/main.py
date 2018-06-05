@@ -29,7 +29,8 @@ if __name__ == "__main__":
         "l2_reg":0.01,
         "hidden_units":64,
         "output_units":32,
-        "feat_size":7
+        "feat_size":7,
+	"activation":"relu"
     }
     run_mlp_model(mlp_parms,train_reader)
     
