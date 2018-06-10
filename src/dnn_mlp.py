@@ -10,14 +10,14 @@ import numpy as np
 
 class Dnn_Mlp(object):
   
-    def __init__(self, epoch=10, batch_size=16,
-                 lr=0.0005, optimizer_type="adam", l2_reg=0.01,
-                 hidden_units=64, output_units=32, feat_size=7,
-		 activation="relu", loss_type="logloss"):
+    def __init__(self, epoch, batch_size, \
+                 lr, optimizer_type, l2_reg, \
+                 hidden_units, output_units, feat_size, \
+		 activation, loss_type):
 	self.epoch = epoch
 	self.batch_size = batch_size
 	self.lr = lr
-	self.optimizer_type = optimizer
+	self.optimizer_type = optimizer_type
 	self.l2_reg = l2_reg
 	self.hidden_units = hidden_units
 	self.output_units = output_units
@@ -27,21 +27,37 @@ class Dnn_Mlp(object):
 
 	self._init_graph()
 	
-	init = tf.global_variables_initializer()
+#	init = tf.global_variables_initializer()
 
-	self.sess = self._init_session()
-	self.sess.run(init)
+#	self.sess = self._init_session()
+#	self.sess.run(init)
 
-	self.saver = tf.train.Saver()
+#	self.saver = tf.train.Saver()
+
+	self.my_test()
 
 
-    def _init_graph():
+
+    def my_test(self):
+	print self.epoch                      
+	print self.batch_size            
+	print self.lr                            
+	print self.optimizer_type    
+	print self.l2_reg                   
+	print self.hidden_units       
+	print self.output_units        
+	print self.feat_size              
+	print self.activation           
+	print self.loss_type              		
+
+
+    def _init_graph(self):
         self.graph = tf.Graph()
 	with self.graph.as_default():  
 	# have existing a default Graph in context, now we will
         # add some edges or nodes into it
             self.X = tf.placeholder(tf.float32,shape=[None,self.feat_size])
-	    self.Y = tf.placeholder(tf.float32,shape=[None,1]
+	    self.Y = tf.placeholder(tf.float32,shape=[None,1])
 	    
 	    self.weights = self._init_weight()
 
@@ -61,9 +77,9 @@ class Dnn_Mlp(object):
 		self.loss = tf.losses.l2_loss( tf.subtract(self.Y,y) )
 	    # L2
 	    if self.l2_reg > 0.0:
-		self.loss += tf.contrib.layers.l2_regularizer(tf.l2_reg)( self.weights["layer_2"]
-		self.loss += tf.contrib.layers.l2_regularizer(tf.l2_reg)( self.weights["layer_1"]
-		self.loss += tf.contrib.layers.l2_regularizer(tf.l2_reg)( self.weights["layer_0"]
+		self.loss += tf.contrib.layers.l2_regularizer(tf.l2_reg)( self.weights["layer_2"] )
+		self.loss += tf.contrib.layers.l2_regularizer(tf.l2_reg)( self.weights["layer_1"] )
+		self.loss += tf.contrib.layers.l2_regularizer(tf.l2_reg)( self.weights["layer_0"] )
 	    # optimizer
 	    if self.optimizer_type == "adam":
 		self.optimizer = tf.train.AdamOptimizer(learning_rate=self.lr,beta1=0.9,beta2=0.999,epsilon=1e-8)
@@ -120,7 +136,7 @@ class Dnn_Mlp(object):
 	# train MLP model
         for epoch in range(self.epoch):
 	    X_batch,y_batch = reader._next_batch( self.batch_size )
-	    loss,optim = self.sess.run( (self.loss, self.train_op), feed_dict={self.X=X_batch,self.Y=y_batch}
+	    loss,optim = self.sess.run( (self.loss, self.train_op), feed_dict={self.X:X_batch,self.Y:y_batch} )
 	    print "epoch=%d,  loss=%f" % (epoch,loss)
 	# save model
 	self.saver.save(self.sess,"mlp_ctr.model")

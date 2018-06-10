@@ -1,5 +1,7 @@
 ############################################
-# This is util for loading training datas.
+# desc : read data with mini-batch
+# @author : qiangz2012@yeah.net
+#
 ###########################################
 
 from config import *
@@ -7,8 +9,9 @@ import numpy as np
 
 class DataLoader(object):
     
-    def __init__(self, file_path):
+    def __init__(self, file_path, data_type):
         self.file_path = file_path
+	self.data_type = data_type
         self.file_data = dict()
 	self.total = 0
 	self.count = 0
@@ -21,9 +24,12 @@ class DataLoader(object):
 	    if lines >= 0 :
 	        segs = line.strip().split(",")
 		features = []
-		for idx in range(len(segs)):
-		    if idx in NUMERIC_COLS:
-			features.append( float(segs[idx]) )
+		if self.data_type == "Y":
+                    features.append( float(segs[1]) )
+		else:  # "X"
+    	            for idx in range(len(segs)):
+		        if idx in NUMERIC_COLS:
+			    features.append( float(segs[idx]) )
 		self.file_data[lines] = features
 	self.total = lines + 1
 
@@ -38,16 +44,26 @@ class DataLoader(object):
 	    edPos = ed
 	else:
 	    edPos = self.total - 1
+	nLines = 0
 	for idx in range(stPos,edPos+1):
 	    feat_vec = self.file_data[idx]
 	    X_matrix[idx-stPos] = feat_vec
+	    nLines += 1
 	# cross
-	
+	if ed < stPos:
+	    stPos = 0
+	    edPos = ed
+	    for idx in range(stPos,edPos+1):
+	        feat_vec = self.file_data[idx]
+		X_matrix[nLines] = feat_vec
+	        nLines += 1
+	return X_matrix
 
 
-	    
-	    
-	 
+    def _test_data(self):
+        print self.total
+	idxs = [0,1,2,3,4,100,1000]
+	for idx in idxs:
+	    print self.file_data[idx]
 
-    
 
